@@ -3,6 +3,8 @@ echo ========================================
 echo TopStack SDK Java 发布脚本
 echo ========================================
 
+echo 请确保已运行 gpg-agent: gpg-agent --daemon
+
 REM 检查环境变量
 if "%SONATYPE_USERNAME%"=="" (
     echo 未设置 SONATYPE_USERNAME 环境变量

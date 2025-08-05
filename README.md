@@ -2,8 +2,6 @@
 
 官方网址：https://www.iotopo.com
 
-TopStack SDK 的 Java 版本，支持 JDK8及以上版本。
-
 TopStack 是一款轻量型 Web 组态软件，提供设备数据采集、定时任务、控制策略、联动控制、设备告警、设备维护管理、设备绩效管理、能源管理、组态开发、报表开发等功能。支持移动端访问，支持本地部署，可帮助企业从无到有快速搭建工业物联网平台。
 
 TopStack 目前已完成了信创生态的全面适配：
@@ -11,6 +9,8 @@ TopStack 目前已完成了信创生态的全面适配：
 * 适配国产服务器：龙芯、飞腾、鲲鹏、海光、兆芯等。
 * 适配国产操作系统：麒麟、统信等操作系统。
 * 适配国产数据库：达梦、人大金仓等国产数据库。
+
+本项目为 TopStack SDK 的 Java 版本，支持 JDK8及以上版本。
 
 ## 安装
 
@@ -20,7 +20,7 @@ TopStack 目前已完成了信创生态的全面适配：
 <dependency>
     <groupId>com.iotopo.topstack</groupId>
     <artifactId>topstack-sdk</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -170,6 +170,57 @@ request.setSize(10);
 WorkOrderListResponse response = WorkOrderApi.queryAlert(client, request);
 ```
 
+### NATS 实时数据订阅
+
+NATS 数据总线模块是独立的，不依赖 TopStack SDK，可以直接使用：
+
+```java
+import com.iotopo.topstack.nats.NatsBus;
+import com.iotopo.topstack.nats.NatsConfig;
+import com.iotopo.topstack.nats.Subscriber;
+import com.iotopo.topstack.nats.model.*;
+
+// 配置 NATS 连接
+NatsConfig natsConfig = new NatsConfig("nats://localhost:4222");
+NatsBus natsBus = new NatsBus(natsConfig);
+
+// 订阅设备测点数据
+Subscriber subscriber = natsBus.subscribePointData(
+    "project001", "device001", "temperature",
+    data -> {
+        System.out.println("收到测点数据: " + data.getValue());
+        System.out.println("设备ID: " + data.getDeviceID());
+        System.out.println("测点ID: " + data.getPointID());
+        System.out.println("时间戳: " + data.getTimestamp());
+    }
+);
+
+// 订阅设备状态数据
+Subscriber stateSubscriber = natsBus.subscribeDeviceState(
+    "project001", "device001",
+    state -> {
+        System.out.println("设备状态: " + (state.getState() == 1 ? "在线" : "离线"));
+    }
+);
+
+// 订阅告警信息
+Subscriber alertSubscriber = natsBus.subscribeAlertInfo(
+    "project001",
+    (alert) -> {
+        System.out.println("收到告警: " + alert.getTitle());
+        System.out.println("告警内容: " + alert.getContent());
+    }
+);
+
+// 取消订阅
+subscriber.unsubscribe();
+stateSubscriber.unsubscribe();
+alertSubscriber.unsubscribe();
+
+// 关闭连接
+natsBus.close();
+```
+
 ## 异常处理
 
 ```java
@@ -204,7 +255,14 @@ mvn clean package -DskipTests
 ## 运行示例
 
 ```bash
-mvn exec:java
+# 运行 NATS 示例
+mvn exec:java@run-nats-example
+
+# 运行完整示例
+mvn exec:java@run-complete-example
+
+# 运行 IoT 示例
+mvn exec:java@run-iot-example
 ```
 
 ## 项目结构
@@ -231,6 +289,17 @@ src/main/java/com/iotopo/topstack/
 │   └── subentry/          # 能源分项
 ├── asset/                  # 资产管理模块
 │   └── workorder/         # 工单管理
+├── nats/                   # NATS 数据总线模块
+│   ├── model/             # 数据模型
+│   │   ├── PointData.java
+│   │   ├── DeviceState.java
+│   │   ├── GatewayState.java
+│   │   ├── ChannelState.java
+│   │   └── AlertInfo.java
+│   ├── NatsBus.java       # NATS 总线实现
+│   ├── NatsConfig.java    # NATS 配置
+│   ├── NatsTopics.java    # 主题工具类
+│   └── Subscriber.java    # 订阅者接口
 └── datav/                  # 数据可视化模块
 ```
 

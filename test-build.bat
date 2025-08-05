@@ -48,8 +48,8 @@ echo 测试构建成功！
 echo ========================================
 echo.
 echo 生成的文件：
-echo - target/topstack-sdk-1.0.0.jar
-echo - target/topstack-sdk-1.0.0-sources.jar
-echo - target/topstack-sdk-1.0.0-javadoc.jar
+echo - target/topstack-sdk-1.1.0.jar
+echo - target/topstack-sdk-1.1.0-sources.jar
+echo - target/topstack-sdk-1.1.0-javadoc.jar
 echo.
 pause 

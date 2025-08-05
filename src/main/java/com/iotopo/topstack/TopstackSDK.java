@@ -40,6 +40,12 @@ import com.iotopo.topstack.iot.IotApi;
  *     // 使用资产管理模块
  *     WorkOrderListRequest workOrderReq = new WorkOrderListRequest();
  *     WorkOrderListResponse workOrderResponse = WorkOrderApi.queryAlert(sdk.getClient(), workOrderReq);
+ *     
+ *     // 使用 NATS 数据总线（独立使用）
+ *     // NatsConfig natsConfig = new NatsConfig("nats://localhost:4222");
+ *     // NatsBus natsBus = new NatsBus(natsConfig);
+ *     // Subscriber subscriber = natsBus.subscribePointData("project001", "device001", "temperature", 
+ *     //     data -> System.out.println("Received point data: " + data));
  * } finally {
  *     // 关闭客户端，释放资源
  *     sdk.getClient().close();
@@ -135,6 +141,8 @@ public class TopstackSDK {
     public AssetApi getAssetApi() {
         return assetApi;
     }
+
+
 
     /**
      * 获取 TopStack 客户端实例
