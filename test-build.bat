@@ -1,55 +1,55 @@
 @echo off
 echo ========================================
-echo TopStack SDK Java æµ‹è¯•æ„å»ºè„šæœ¬
+echo TopStack SDK Java ²âÊÔ¹¹½¨½Å±¾
 echo ========================================
 
-echo æ¸…ç†é¡¹ç›®...
+echo ÇåÀíÏîÄ¿...
 call mvn clean
 
 if %ERRORLEVEL% neq 0 (
-    echo æ¸…ç†å¤±è´¥
+    echo ÇåÀíÊ§°Ü
     pause
     exit /b 1
 )
 
 echo.
-echo ç¼–è¯‘é¡¹ç›®...
+echo ±àÒëÏîÄ¿...
 call mvn compile -DskipTests
 
 if %ERRORLEVEL% neq 0 (
-    echo ç¼–è¯‘å¤±è´¥
+    echo ±àÒëÊ§°Ü
     pause
     exit /b 1
 )
 
 echo.
-echo è¿è¡Œæµ‹è¯•...
+echo ÔËĞĞ²âÊÔ...
 call mvn test
 
 if %ERRORLEVEL% neq 0 (
-    echo æµ‹è¯•å¤±è´¥
+    echo ²âÊÔÊ§°Ü
     pause
     exit /b 1
 )
 
 echo.
-echo æ‰“åŒ…é¡¹ç›®...
+echo ´ò°üÏîÄ¿...
 call mvn package -DskipTests
 
 if %ERRORLEVEL% neq 0 (
-    echo æ‰“åŒ…å¤±è´¥
+    echo ´ò°üÊ§°Ü
     pause
     exit /b 1
 )
 
 echo.
 echo ========================================
-echo æµ‹è¯•æ„å»ºæˆåŠŸï¼
+echo ²âÊÔ¹¹½¨³É¹¦£¡
 echo ========================================
 echo.
-echo ç”Ÿæˆçš„æ–‡ä»¶ï¼š
-echo - target/topstack-sdk-1.1.0.jar
-echo - target/topstack-sdk-1.1.0-sources.jar
-echo - target/topstack-sdk-1.1.0-javadoc.jar
+echo Éú³ÉµÄÎÄ¼ş£º
+echo - target/topstack-sdk-1.0.2.jar
+echo - target/topstack-sdk-1.0.2-sources.jar
+echo - target/topstack-sdk-1.0.2-javadoc.jar
 echo.
 pause 

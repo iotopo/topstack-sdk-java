@@ -9,7 +9,7 @@ public class TopstackClientTest {
 
     @Before
     public void setUp() {
-        client = new TopstackClient("http://localhost:800", "test-api-key", "test-project-id");
+        client = new TopstackClient("http://localhost:800", "test-app-id", "test-app-secret");
     }
 
     @Test

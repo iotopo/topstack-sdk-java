@@ -13,7 +13,7 @@ import java.util.List;
 public class IotExample {
     public static void main(String[] args) {
         // 初始化客户端
-        TopstackClient client = new TopstackClient("http://localhost:8000", "8mphozy98fkor6iu", "iotopo");
+        TopstackClient client = new TopstackClient("http://localhost:8000", "app-id", "app-secret");
         IotApi iotApi = new IotApi(client);
 
         try {

@@ -13,7 +13,7 @@ public class OffsetDateTimeSerializationTest {
     @Test
     public void testOffsetDateTimeSerialization() throws Exception {
         // 使用 TopstackClient 中的 ObjectMapper
-        TopstackClient client = new TopstackClient("http://localhost:80", "test-api-key", "test-project-id");
+        TopstackClient client = new TopstackClient("http://localhost:80", "app-id", "app-secret");
         ObjectMapper objectMapper = client.getObjectMapper();
         
         OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
@@ -28,7 +28,7 @@ public class OffsetDateTimeSerializationTest {
     @Test
     public void testReportRequestSerialization() throws Exception {
         // 使用 TopstackClient 中的 ObjectMapper
-        TopstackClient client = new TopstackClient("http://localhost:80", "test-api-key", "test-project-id");
+        TopstackClient client = new TopstackClient("http://localhost:80", "app-id", "app-secret");
         ObjectMapper objectMapper = client.getObjectMapper();
         
         // 创建一个测试用的 ReportRequest 对象

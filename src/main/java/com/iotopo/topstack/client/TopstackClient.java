@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import okhttp3.*;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -19,14 +20,15 @@ import java.util.concurrent.TimeUnit;
  * <ul>
  *   <li>HTTP 请求发送和响应处理</li>
  *   <li>JSON 数据序列化和反序列化</li>
- *   <li>自动添加认证头部（X-API-Key 和 X-ProjectID）</li>
+ *   <li>自动添加认证头部（Bearer 令牌）</li>
  *   <li>支持 Java 8 时间类型（ISO-8601 格式）</li>
  *   <li>连接超时和读取超时配置</li>
+ *   <li>自动令牌管理和刷新</li>
  * </ul>
  * 
  * <p>使用示例：</p>
  * <pre>{@code
- * TopstackClient client = new TopstackClient("http://localhost:8000", "your-api-key", "your-project-id");
+ * TopstackClient client = new TopstackClient("http://localhost:8000", "your-app-id", "your-app-secret");
  * try {
  *     // 发送请求
  *     ResponseData<DeviceListResponse> response = client.get("/iot/open_api/v1/device/query", null, DeviceListResponse.class);
@@ -42,35 +44,38 @@ import java.util.concurrent.TimeUnit;
 public class TopstackClient {
     private final OkHttpClient httpClient;
     private final String baseUrl;
-    private final String apiKey;
-    private final String projectId;
+    private final String appId;
+    private final String appSecret;
     private final ObjectMapper objectMapper;
+    
+    private String accessToken;
+    private Instant expiresAt;
 
     /**
      * 构造函数
      * 
-     * <p>创建一个新的 TopStack 客户端实例。</p>
+     * <p>创建一个新的 TopStack 客户端实例，使用 AppID/AppSecret 认证方式。</p>
      * 
      * @param baseUrl TopStack 平台的基础 URL，例如 "http://localhost:8000"
-     * @param apiKey API 认证密钥
-     * @param projectId 项目标识
+     * @param appId 应用ID
+     * @param appSecret 应用密钥
      * 
-     * @throws IllegalArgumentException 如果 baseUrl、apiKey 或 projectId 为 null 或空
+     * @throws IllegalArgumentException 如果 baseUrl、appId 或 appSecret 为 null 或空
      */
-    public TopstackClient(String baseUrl, String apiKey, String projectId) {
+    public TopstackClient(String baseUrl, String appId, String appSecret) {
         if (baseUrl == null || baseUrl.trim().isEmpty()) {
             throw new IllegalArgumentException("baseUrl cannot be null or empty");
         }
-        if (apiKey == null || apiKey.trim().isEmpty()) {
-            throw new IllegalArgumentException("apiKey cannot be null or empty");
+        if (appId == null || appId.trim().isEmpty()) {
+            throw new IllegalArgumentException("appId cannot be null or empty");
         }
-        if (projectId == null || projectId.trim().isEmpty()) {
-            throw new IllegalArgumentException("projectId cannot be null or empty");
+        if (appSecret == null || appSecret.trim().isEmpty()) {
+            throw new IllegalArgumentException("appSecret cannot be null or empty");
         }
         
         this.baseUrl = baseUrl;
-        this.apiKey = apiKey;
-        this.projectId = projectId;
+        this.appId = appId;
+        this.appSecret = appSecret;
         this.httpClient = new OkHttpClient.Builder()
                 .connectTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(20, TimeUnit.SECONDS)
@@ -85,6 +90,50 @@ public class TopstackClient {
         
         // 允许空对象序列化，避免 FAIL_ON_EMPTY_BEANS 错误
         this.objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+    }
+    
+    /**
+     * 获取访问令牌
+     * 
+     * <p>使用 AppID 和 AppSecret 获取访问令牌，并缓存令牌信息。</p>
+     * 
+     * @throws TopstackException 当获取令牌失败时
+     */
+    private void getAccessToken() throws TopstackException {
+        // 检查令牌是否还有效（提前5分钟过期）
+        if (accessToken != null && expiresAt != null && Instant.now().isBefore(expiresAt)) {
+            return;
+        }
+        
+        try {
+            AuthTokenRequest request = new AuthTokenRequest(appId, appSecret);
+            String json = objectMapper.writeValueAsString(request);
+            RequestBody requestBody = RequestBody.create(json, MediaType.parse("application/json"));
+            
+            Request tokenRequest = new Request.Builder()
+                    .url(baseUrl + "/open_api/v1/auth/access_token")
+                    .post(requestBody)
+                    .addHeader("Content-Type", "application/json")
+                    .build();
+            
+            try (Response response = httpClient.newCall(tokenRequest).execute()) {
+                String respBody = response.body() != null ? response.body().string() : "";
+                if (!response.isSuccessful()) {
+                    throw new TopstackException(response.code(), "获取访问令牌失败: " + respBody);
+                }
+                
+                AuthTokenResponse tokenResp = objectMapper.readValue(respBody, AuthTokenResponse.class);
+                if (tokenResp.getCode() != null && !tokenResp.getCode().isEmpty()) {
+                    throw new TopstackException(-1, "获取访问令牌失败: " + tokenResp.getCode() + ", " + tokenResp.getMsg());
+                }
+                
+                this.accessToken = tokenResp.getAccessToken();
+                // 提前5分钟过期
+                this.expiresAt = Instant.now().plusSeconds(tokenResp.getExpire() - 300);
+            }
+        } catch (IOException e) {
+            throw new TopstackException(-1, "获取访问令牌失败: " + e.getMessage());
+        }
     }
 
     /**
@@ -103,6 +152,9 @@ public class TopstackClient {
      */
     public <T> T sendRequest(String method, String url, Object body, Class<T> responseType) throws TopstackException {
         try {
+            // 获取访问令牌
+            getAccessToken();
+            
             RequestBody requestBody = null;
             if (body != null) {
                 String json = objectMapper.writeValueAsString(body);
@@ -111,8 +163,7 @@ public class TopstackClient {
             Request.Builder builder = new Request.Builder()
                     .url(baseUrl + url)
                     .addHeader("Content-Type", "application/json")
-                    .addHeader("X-API-Key", apiKey)
-                    .addHeader("X-ProjectID", projectId);
+                    .addHeader("Authorization", "Bearer " + accessToken);
             if (method.equalsIgnoreCase("GET")) {
                 builder.get();
             } else if (method.equalsIgnoreCase("POST")) {
@@ -154,6 +205,9 @@ public class TopstackClient {
      */
     public <T> T sendRequest(String method, String url, Object body, JavaType javaType) throws TopstackException {
         try {
+            // 获取访问令牌
+            getAccessToken();
+            
             RequestBody requestBody = null;
             if (body != null) {
                 String json = objectMapper.writeValueAsString(body);
@@ -162,8 +216,7 @@ public class TopstackClient {
             Request.Builder builder = new Request.Builder()
                     .url(baseUrl + url)
                     .addHeader("Content-Type", "application/json")
-                    .addHeader("X-API-Key", apiKey)
-                    .addHeader("X-ProjectID", projectId);
+                    .addHeader("Authorization", "Bearer " + accessToken);
             if (method.equalsIgnoreCase("GET")) {
                 builder.get();
             } else if (method.equalsIgnoreCase("POST")) {
@@ -199,6 +252,33 @@ public class TopstackClient {
      */
     public ObjectMapper getObjectMapper() {
         return objectMapper;
+    }
+    
+    /**
+     * 获取基础 URL
+     * 
+     * @return 基础 URL
+     */
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+    
+    /**
+     * 获取应用 ID
+     * 
+     * @return 应用 ID
+     */
+    public String getAppId() {
+        return appId;
+    }
+    
+    /**
+     * 获取应用密钥
+     * 
+     * @return 应用密钥
+     */
+    public String getAppSecret() {
+        return appSecret;
     }
     
     /**

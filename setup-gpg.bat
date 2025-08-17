@@ -1,73 +1,73 @@
 @echo off
 echo ========================================
-echo TopStack SDK Java GPG å¯†é’¥è®¾ç½®è„šæœ¬
+echo TopStack SDK Java GPG ÃÜÔ¿ÉèÖÃ½Å±¾
 echo ========================================
 
-echo æ­¤è„šæœ¬å°†å¸®åŠ©æ‚¨è®¾ç½® GPG å¯†é’¥ç”¨äºŽ Maven Central å‘å¸ƒ
+echo ´Ë½Å±¾½«°ïÖúÄúÉèÖÃ GPG ÃÜÔ¿ÓÃÓÚ Maven Central ·¢²¼
 echo.
 
-echo 1. æ£€æŸ¥æ˜¯å¦å·²å®‰è£… GPG...
+echo 1. ¼ì²éÊÇ·ñÒÑ°²×° GPG...
 gpg --version >nul 2>&1
 if %ERRORLEVEL% neq 0 (
-    echo é”™è¯¯: æœªæ‰¾åˆ° GPGï¼Œè¯·å…ˆå®‰è£… GPG
-    echo Windows ç”¨æˆ·å¯ä»¥ä»Ž https://www.gpg4win.org/ ä¸‹è½½
+    echo ´íÎó: Î´ÕÒµ½ GPG£¬ÇëÏÈ°²×° GPG
+    echo Windows ÓÃ»§¿ÉÒÔ´Ó https://www.gpg4win.org/ ÏÂÔØ
     pause
     exit /b 1
 )
 
-echo GPG å·²å®‰è£…
+echo GPG ÒÑ°²×°
 echo.
 
-echo 2. æ£€æŸ¥çŽ°æœ‰å¯†é’¥...
+echo 2. ¼ì²éÏÖÓÐÃÜÔ¿...
 gpg --list-keys
 
 echo.
-echo 3. ç”Ÿæˆæ–°çš„ GPG å¯†é’¥...
-echo è¯·æŒ‰ç…§æç¤ºè¾“å…¥ä»¥ä¸‹ä¿¡æ¯ï¼š
-echo - å¯†é’¥ç±»åž‹: é€‰æ‹©é»˜è®¤ (RSA and RSA)
-echo - å¯†é’¥å¤§å°: é€‰æ‹© 4096
-echo - æœ‰æ•ˆæœŸ: é€‰æ‹© 0 (æ°¸ä¸è¿‡æœŸ)
-echo - ç”¨æˆ·ä¿¡æ¯: è¾“å…¥æ‚¨çš„å§“åå’Œé‚®ç®±
-echo - å¯†ç : è®¾ç½®ä¸€ä¸ªå®‰å…¨çš„å¯†ç 
+echo 3. Éú³ÉÐÂµÄ GPG ÃÜÔ¿...
+echo Çë°´ÕÕÌáÊ¾ÊäÈëÒÔÏÂÐÅÏ¢£º
+echo - ÃÜÔ¿ÀàÐÍ: Ñ¡ÔñÄ¬ÈÏ (RSA and RSA)
+echo - ÃÜÔ¿´óÐ¡: Ñ¡Ôñ 4096
+echo - ÓÐÐ§ÆÚ: Ñ¡Ôñ 0 (ÓÀ²»¹ýÆÚ)
+echo - ÓÃ»§ÐÅÏ¢: ÊäÈëÄúµÄÐÕÃûºÍÓÊÏä
+echo - ÃÜÂë: ÉèÖÃÒ»¸ö°²È«µÄÃÜÂë
 echo.
 
 gpg --gen-key
 
 if %ERRORLEVEL% neq 0 (
-    echo GPG å¯†é’¥ç”Ÿæˆå¤±è´¥
+    echo GPG ÃÜÔ¿Éú³ÉÊ§°Ü
     pause
     exit /b 1
 )
 
 echo.
-echo 4. æ˜¾ç¤ºç”Ÿæˆçš„å¯†é’¥...
+echo 4. ÏÔÊ¾Éú³ÉµÄÃÜÔ¿...
 gpg --list-keys
 
 echo.
-echo 5. ä¸Šä¼ å…¬é’¥åˆ°å¯†é’¥æœåŠ¡å™¨...
-echo è¯·è¾“å…¥æ‚¨çš„å¯†é’¥ ID (æ˜¾ç¤ºåœ¨ä¸Šä¸€è¡Œçš„ pub è¡Œä¸­):
-set /p KEY_ID="å¯†é’¥ ID: "
+echo 5. ÉÏ´«¹«Ô¿µ½ÃÜÔ¿·þÎñÆ÷...
+echo ÇëÊäÈëÄúµÄÃÜÔ¿ ID (ÏÔÊ¾ÔÚÉÏÒ»ÐÐµÄ pub ÐÐÖÐ):
+set /p KEY_ID="ÃÜÔ¿ ID: "
 
-echo æ­£åœ¨ä¸Šä¼ åˆ° Ubuntu å¯†é’¥æœåŠ¡å™¨...
+echo ÕýÔÚÉÏ´«µ½ Ubuntu ÃÜÔ¿·þÎñÆ÷...
 gpg --keyserver keyserver.ubuntu.com --send-keys %KEY_ID%
 
 if %ERRORLEVEL% neq 0 (
-    echo è­¦å‘Š: å¯†é’¥ä¸Šä¼ å¯èƒ½å¤±è´¥ï¼Œè¯·ç¨åŽæ‰‹åŠ¨ä¸Šä¼ 
-    echo æ‰‹åŠ¨ä¸Šä¼ å‘½ä»¤: gpg --keyserver keyserver.ubuntu.com --send-keys %KEY_ID%
+    echo ¾¯¸æ: ÃÜÔ¿ÉÏ´«¿ÉÄÜÊ§°Ü£¬ÇëÉÔºóÊÖ¶¯ÉÏ´«
+    echo ÊÖ¶¯ÉÏ´«ÃüÁî: gpg --keyserver keyserver.ubuntu.com --send-keys %KEY_ID%
 ) else (
-    echo å¯†é’¥ä¸Šä¼ æˆåŠŸ
+    echo ÃÜÔ¿ÉÏ´«³É¹¦
 )
 
 echo.
 echo ========================================
-echo GPG å¯†é’¥è®¾ç½®å®Œæˆ
+echo GPG ÃÜÔ¿ÉèÖÃÍê³É
 echo ========================================
 echo.
-echo è¯·è®°å½•ä»¥ä¸‹ä¿¡æ¯ç”¨äºŽå‘å¸ƒï¼š
-echo å¯†é’¥ ID: %KEY_ID%
-echo å¯†ç : (æ‚¨åˆšæ‰è®¾ç½®çš„å¯†ç )
+echo Çë¼ÇÂ¼ÒÔÏÂÐÅÏ¢ÓÃÓÚ·¢²¼£º
+echo ÃÜÔ¿ ID: %KEY_ID%
+echo ÃÜÂë: (Äú¸Õ²ÅÉèÖÃµÄÃÜÂë)
 echo.
-echo å‘å¸ƒæ—¶è¯·è®¾ç½®çŽ¯å¢ƒå˜é‡ï¼š
+echo ·¢²¼Ê±ÇëÉèÖÃ»·¾³±äÁ¿£º
 echo set GPG_KEY_ID=%KEY_ID%
 echo set GPG_PASSPHRASE=your_password
 echo.

@@ -24,16 +24,48 @@ TopStack 目前已完成了信创生态的全面适配：
 </dependency>
 ```
 
+## 认证方式
+
+TopStack SDK Java 使用 AppID/AppSecret 认证方式：
+
+```java
+import com.iotopo.topstack.TopstackSDK;
+
+// 使用 AppID/AppSecret 认证方式
+TopstackSDK sdk = new TopstackSDK("http://localhost:8000", "your-app-id", "your-app-secret");
+```
+
+**认证方式说明：**
+- **AppID/AppSecret 认证**：通过获取访问令牌进行认证，支持令牌自动刷新，适合企业级应用
+- 自动调用 `/open_api/v1/auth/access_token` 接口获取访问令牌
+- 访问令牌自动缓存，并在过期前5分钟自动刷新
+- 所有 API 调用自动携带 Bearer 令牌进行认证
+
 ## 快速开始
 
 ### 初始化客户端
+
+#### 方式一：使用 TopstackSDK（推荐）
+
+```java
+import com.iotopo.topstack.TopstackSDK;
+
+// 使用 AppID/AppSecret 认证方式
+TopstackSDK sdk = new TopstackSDK("http://localhost:8000", "your-app-id", "your-app-secret");
+
+// 获取各个模块的 API 实例
+IotApi iotApi = sdk.getIotApi();
+```
+
+#### 方式二：直接使用 TopstackClient
 
 ```java
 import com.iotopo.topstack.client.TopstackClient;
 import com.iotopo.topstack.iot.IotApi;
 
-// 初始化客户端
-TopstackClient client = new TopstackClient("http://localhost:8000", "your-api-key", "your-project-id");
+// 使用 AppID/AppSecret 认证方式
+TopstackClient client = new TopstackClient("http://localhost:8000", "your-app-id", "your-app-secret");
+
 IotApi iotApi = new IotApi(client);
 ```
 

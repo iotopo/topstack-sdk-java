@@ -19,7 +19,7 @@ import java.util.List;
 public class CompleteExample {
     public static void main(String[] args) {
         // 初始化 SDK
-        TopstackSDK sdk = new TopstackSDK("http://localhost:8000", "x248z0728lhn", "iotopo");
+        TopstackSDK sdk = new TopstackSDK("http://localhost:8000", "app-id", "app-secret");
 
         try {
             // IoT 模块示例

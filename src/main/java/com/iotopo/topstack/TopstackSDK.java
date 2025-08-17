@@ -76,18 +76,18 @@ public class TopstackSDK {
     private final AssetApi assetApi;
 
     /**
-     * 构造函数
+     * 构造函数 - AppID/AppSecret 认证
      * 
-     * <p>创建一个新的 TopStack SDK 实例，初始化所有功能模块。</p>
+     * <p>创建一个新的 TopStack SDK 实例，使用 AppID/AppSecret 认证方式，初始化所有功能模块。</p>
      * 
      * @param baseUrl TopStack 平台的基础 URL，例如 "http://localhost:8000"
-     * @param apiKey API 认证密钥
-     * @param projectId 项目标识
+     * @param appId 应用ID
+     * @param appSecret 应用密钥
      * 
-     * @throws IllegalArgumentException 如果 baseUrl、apiKey 或 projectId 为 null 或空
+     * @throws IllegalArgumentException 如果 baseUrl、appId 或 appSecret 为 null 或空
      */
-    public TopstackSDK(String baseUrl, String apiKey, String projectId) {
-        this.client = new TopstackClient(baseUrl, apiKey, projectId);
+    public TopstackSDK(String baseUrl, String appId, String appSecret) {
+        this.client = new TopstackClient(baseUrl, appId, appSecret);
         this.iotApi = new IotApi(client);
         this.alertApi = new AlertApi();
         this.emsApi = new EmsApi();
